@@ -8,15 +8,19 @@ const registerUser = (req, res) => {
         return res.status(400).json({ error: 'Email e password sono richiesti' });
     }
 
-    bcrypt.hash(psw, 10, (err, hash) => {
+    bcrypt.hash(psw, 10, (err, pswHash) => {
         if(err) return res.status(500).json({error: "errore nella registrazione della password"});
 
-        const sql = 'INSERT INTO USERS (email, psw) VALUES (?, ?)';
-        db.query(sql, [email, hash], (err, result) => {
-            if (err) {
-                return res.status(500).json({ error: 'errore durante la registrazione' });
-            }
-            res.status(201).json({ message: 'registrazione avvenuta con successo' });
+        bcrypt.hash(email, 10, (err, emailHash) => {
+            if(err) return res.status(500).json({error: "errore nella registrazione della email"});
+
+            const sql = 'INSERT INTO USERS (email, psw) VALUES (?, ?)';
+            db.query(sql, [emailHash, pswHash], (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'errore durante la registrazione' });
+                }
+                res.status(201).json({ message: 'registrazione avvenuta con successo' });
+            })
         })
     })
 }
